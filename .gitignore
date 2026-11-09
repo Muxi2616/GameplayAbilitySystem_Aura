@@ -1,16 +1,49 @@
-Binaries
-DerivedDataCache
-Intermediate
-Saved
-Build
+# Unreal Engine generated output (including plugin output)
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
 
-.vscode
-.vs
+# Local packaging and staging output
+/Packaged/
+/PackagedBuilds/
+/StagedBuilds/
+
+# Generated build data; keep Build resources and packaging configuration tracked
+/Build/Receipts/
+/Build/*/FileOpenOrder/
+/Build/**/*.target
+/Build/**/*.modules
+
+# Rider, Visual Studio, VS Code and other local IDE state
+.idea/
+.vs/
+.vscode/
+.fleet/
+*.sln
+*.slnx
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
 *.vc.db
+*.VC.db
+*.VC.VC.opendb
 *.opensdf
 *.opendb
 *.sdf
-*.sln
-*.suo
-*.xcodeproj
-*.xcworkspace
+*.code-workspace
+*.xcodeproj/
+*.xcworkspace/
+
+# Temporary files and OS metadata
+*.tmp
+*.temp
+*.bak
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini

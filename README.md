@@ -1,6 +1,8 @@
 # Aura
 
-基于 **Unreal Engine 5.2** 的俯视角 ARPG 练习项目，以 **Gameplay Ability System（GAS）** 为核心，实现完整的战斗、成长、技能管理、存档读档与关卡通关闭环。
+基于 **Unreal Engine 5.2** 开发的俯视角 ARPG 练习项目，当前分支面向 **Unreal Engine 5.8 + Rider** 适配。项目以 **Gameplay Ability System（GAS）** 为核心，实现完整的战斗、成长、技能管理、存档读档与关卡通关闭环。
+
+原始 UE 5.2 版本保留在 `ue-5.2` 标签，升级开发使用 `codex/ue5.8-upgrade` 分支。
 
 > 个人项目 / 面试作品：重点展示 GAS 战斗公式、技能状态机、存档系统设计与 C++ / Blueprint 分层架构。
 
@@ -21,7 +23,7 @@
 
 | 类别     | 技术                                       |
 | -------- | ------------------------------------------ |
-| 引擎     | Unreal Engine 5.2                          |
+| 引擎     | Unreal Engine 5.8（原版为 5.2）             |
 | 核心框架 | Gameplay Ability System (GAS)              |
 | 输入     | Enhanced Input + GameplayTag               |
 | AI       | Behavior Tree + Blackboard                 |
@@ -147,14 +149,58 @@ Source/Aura/
 
 **环境要求**
 
-- Unreal Engine **5.2**
-- Visual Studio 2022 或 Rider（含 C++ 游戏开发工作负载）
+- Unreal Engine **5.8**，本机适配目标为 **5.8.4**。
+- Rider；直接打开 `Aura.uproject`，无需先生成 `.sln`。
+- Visual Studio 2026 / Build Tools 的 C++ 编译工具；也可使用 VS 2022 **17.14** 的对应工具链。Rider 本身不提供 MSVC，不需要使用 Visual Studio IDE 编写代码。
+- Windows SDK **10.0.26100.0**。本机已使用 VS 2026 的 MSVC **14.51.36260** 完成编辑器构建；UE 5.8 对该工具链会提示其比首选版本更新，首选工具链为 MSVC 14.50 / 14.44。
+- 使用 Visual Studio Installer 导入仓库根目录 `.vsconfig` 安装所需组件。
 
 **步骤**
 
-1. 克隆仓库后，用 UE 5.2 打开 `Aura.uproject`  
-2. 首次打开会提示编译 C++ 模块，等待编译完成  
-3. 在编辑器中运行默认关卡（或从 LoadMenu 进入）  
+1. 检出 `codex/ue5.8-upgrade` 分支，安装上述编译工具。
+2. 在 Rider 中打开 `Aura.uproject`，等待 Unreal 项目模型加载完成。
+3. 使用 `AuraEditor / Development / Win64` 配置构建；首次完整构建时关闭 UE 编辑器。
+4. 构建成功后启动 UE 编辑器，从 `LoadMenu` 创建并选择新存档，再进入游戏。
+5. 编辑器中可将 `Editor Preferences > Source Code` 的源码编辑器设为 Rider。
+
+也可以从项目根目录的 PowerShell 编译：
+
+```powershell
+$projectPath = (Resolve-Path .\Aura.uproject).Path
+& 'C:\Program Files\Epic Games\UE_5.8\Engine\Build\BatchFiles\Build.bat' `
+    AuraEditor Win64 Development "-Project=$projectPath" -WaitMutex -NoHotReloadFromIDE
+```
+
+**Rider 提示 .NET Core installation folder not found**
+
+在 `Settings > Build, Execution, Deployment > Toolset and Build`（中文界面：构建、执行、部署 > 工具包和构建）中，将 `.NET CLI executable path` 设置为引擎自带的工具：
+
+```text
+C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\ThirdParty\DotNet\10.0\win-x64\dotnet.exe
+```
+
+保存后重新加载项目。安装引擎的目录不同时，需要相应调整路径。这是本机的 Rider 设置，保存在已忽略提交的 `Aura.uproject.DotSettings.user`，不需要为此修改项目源码。2026-11-09 已在 Rider 中验证项目模型生成成功。
+
+**RiderLink**
+
+仓库自带的 RiderLink 为 2025.3.1，当前在 `.uproject` 中禁用，避免旧 IDE 插件阻碍升级。代码编辑、构建和调试仍可使用 Rider。需要蓝图交互等 RiderLink 功能时，通过当前 Rider 安装匹配版本，再启用 `.uproject` 中的 RiderLink；项目目录与引擎目录只保留一处安装。
+
+**升级后的验证**
+
+- 当前配置在编辑器中启动 `LoadMenu`，打包后启动 `MainMenu`，两条流程都应测试。
+- 使用新存档验证创建 / 选择存档、进入关卡、移动 / 寻路、技能按下 / 持续 / 松开。
+- 验证燃烧持续伤害、眩晕、输入阻断及效果到期后的恢复。
+- 验证升级、技能装备、被动技能、检查点存档、重启读档、切图和死亡重生。
+- C++ 构建成功后，编译相关 Blueprint / Widget，检查 MVVM 绑定，再打 Windows Development 包检查地图与资源加载。
+
+2026-11-09 已使用 UE 5.8.4 + VS 2026 + Windows SDK 10.0.26100.0 完成以下验证：
+
+- `AuraEditor / Development / Win64` 和 `Aura / Development / Win64` 均构建成功。
+- 141 个项目蓝图全部编译通过，无蓝图编译错误、警告或加载失败。
+- `LoadMenu`、`MainMenu`、`Dungeon`、`Dungeon_2`、`Dungeon_3` 均通过 NullRHI 无界面启动检查，正常退出，无脚本错误或空引用。
+- 已迁移并保存七个菜单控件资源，修复菜单焦点设置；对需要由蓝图手动访问 ViewModel 的控件启用 MVVM 的 `Create View Without Bindings`，避免新版引擎省略视图而产生空引用。
+
+无界面检查不覆盖实际渲染、鼠标操作、战斗和存档闭环，这些仍需在编辑器中进行完整交互验证。验证日志位于忽略提交的 `Saved/Logs/UE58-*.log`。
 
 ---
 

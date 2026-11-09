@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AUra/Aura.h"
+#include "Aura.h"
 #include "GameFramework/PlayerStart.h"
 #include "Interaction/HighlightInterface.h"
 #include "Interaction/SaveInterface.h"

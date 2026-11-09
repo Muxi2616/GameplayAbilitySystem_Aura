@@ -7,6 +7,7 @@
 #include "AuraAbilityTypes.h"
 #include "GameFramework/Character.h"
 #include "GameplayEffectExtension.h"
+#include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
@@ -235,14 +236,16 @@ void UAuraAttributeSet::Debuff(const FEffectProperties& Props)
 	Effect->DurationMagnitude = FScalableFloat(DebuffDuration);
 
 	const FGameplayTag DebuffTag = GameplayTags.DamageTypesToDebuffs[DamageType];
-	Effect->InheritableOwnedTagsContainer.AddTag(DebuffTag);
+	FInheritedTagContainer GrantedTags;
+	GrantedTags.AddTag(DebuffTag);
 	if (DebuffTag.MatchesTagExact(GameplayTags.Debuff_Stun))
 	{
-		Effect->InheritableOwnedTagsContainer.AddTag(GameplayTags.Player_Block_CursorTrace);
-		Effect->InheritableOwnedTagsContainer.AddTag(GameplayTags.Player_Block_InputHeld);
-		Effect->InheritableOwnedTagsContainer.AddTag(GameplayTags.Player_Block_InputPressed);
-		Effect->InheritableOwnedTagsContainer.AddTag(GameplayTags.Player_Block_InputReleased);
+		GrantedTags.AddTag(GameplayTags.Player_Block_CursorTrace);
+		GrantedTags.AddTag(GameplayTags.Player_Block_InputHeld);
+		GrantedTags.AddTag(GameplayTags.Player_Block_InputPressed);
+		GrantedTags.AddTag(GameplayTags.Player_Block_InputReleased);
 	}
+	Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>().SetAndApplyTargetTagChanges(GrantedTags);
 	
 	
 	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;
@@ -256,14 +259,10 @@ void UAuraAttributeSet::Debuff(const FEffectProperties& Props)
 	ModifierInfo.ModifierOp = EGameplayModOp::Additive;
 	ModifierInfo.Attribute = UAuraAttributeSet::GetIncomingDamageAttribute();
 
-	if (FGameplayEffectSpec* MutableSpec = new FGameplayEffectSpec(Effect, EffectContext, 1.f))
-	{
-		FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(MutableSpec->GetContext().Get());
-		TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageType));
-		AuraContext->SetDamageType(DebuffDamageType);
-
-		Props.TargetASC->ApplyGameplayEffectSpecToSelf(*MutableSpec);
-	}
+	FGameplayEffectSpec MutableSpec(Effect, EffectContext, 1.f);
+	FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(MutableSpec.GetContext().Get());
+	AuraContext->SetDamageType(MakeShared<FGameplayTag>(DamageType));
+	Props.TargetASC->ApplyGameplayEffectSpecToSelf(MutableSpec);
 }
 
 void UAuraAttributeSet::HandleIncomingXP(const FEffectProperties& Props)

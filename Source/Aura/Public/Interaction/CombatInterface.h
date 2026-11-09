@@ -11,6 +11,8 @@
 class UAbilitySystemComponent;
 class UNiagaraSystem;
 class UAnimMontage;
+class USoundBase;
+class USkeletalMeshComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnASCRegistered, UAbilitySystemComponent*)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, AActor*, DeadActor);

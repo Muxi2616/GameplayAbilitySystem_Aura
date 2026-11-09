@@ -93,16 +93,19 @@ void UMVVM_LoadScreen::DeleteButtonPressed()
 
 void UMVVM_LoadScreen::PlayButtonPressed()
 {
+	if (!IsValid(SelectedSlot)) return;
+
 	AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
+	if (!IsValid(AuraGameMode)) return;
+
 	UAuraGameInstance* AuraGameInstance = Cast<UAuraGameInstance>(AuraGameMode->GetGameInstance());
+	if (!IsValid(AuraGameInstance)) return;
+
 	AuraGameInstance->PlayerStartTag = SelectedSlot->PlayerStartTag;
 	AuraGameInstance->LoadSlotName = SelectedSlot->LoadSlotName;
 	AuraGameInstance->LoadSlotIndex = SelectedSlot->SlotIndex;
 	
-	if (IsValid(SelectedSlot))
-	{
-		AuraGameMode->TraveToMap(SelectedSlot);
-	}
+	AuraGameMode->TraveToMap(SelectedSlot);
 }
 
 void UMVVM_LoadScreen::LoadData()

@@ -4,6 +4,8 @@
 #include "Actor/PointCollection.h"
 
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
+#include "Components/SceneComponent.h"
+#include "Engine/World.h"
 #include "Kismet/KismetMathLibrary.h"
 
 

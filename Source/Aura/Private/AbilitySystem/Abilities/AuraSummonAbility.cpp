@@ -2,6 +2,7 @@
 
 
 #include "AbilitySystem/Abilities/AuraSummonAbility.h"
+#include "Engine/World.h"
 
 
 TArray<FVector> UAuraSummonAbility::GetSpawnLocations()
